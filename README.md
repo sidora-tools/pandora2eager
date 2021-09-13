@@ -53,7 +53,7 @@ following instructions. You will need to provide a valid `.credentials` file you
 First use `git clone` to download this repository, then `cd` into the repository directory.
 Copy your valid `.credentials` file into the repository directory and run
 ```bash
-singularity build pandora2eager p2e_singularity.def
+singularity build pandora2eager.sif p2e_singularity.def
 ```
 
 ### OSX
