@@ -1,0 +1,29 @@
+Bootstrap: docker
+From: rocker/tidyverse:4.1.1
+
+%files
+  .credentials
+  pandora2eager.R
+
+%post
+  chmod 644 /.credentials
+  apt-get update && apt-get install -y libmariadb-dev
+  R --slave -e 'install.packages(c("remotes", "DBI", "RMariaDB"))'
+  R --slave -e 'remotes::install_github("sidora-tools/sidora.core", dependencies = TRUE)'
+
+%runscript
+  #!/bin/bash
+  export input=$1
+  
+  if [[ ${#@} == 0 || $1 == "-h" || $1 == "--help" ]]; then
+    /pandora2eager.R
+  elif [[ ${#@} -gt 1 ]]; then 
+    shift
+    /pandora2eager.R ${input} /.credentials $*
+  else
+    /pandora2eager.R ${input} /.credentials
+  fi
+
+%labels
+  Author  Thiseas C. Lamnidis
+  GithubUrl https://github.com/sidora-tools/pandora2eager.git
