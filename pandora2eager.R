@@ -155,7 +155,7 @@ collect_and_format_info<- function(query_list_seq, con) {
 args = commandArgs(trailingOnly=TRUE)
 
 if (length(args) < 2) {
-  write("No input file given. \n\nusage: Rscript query_pandora_for_data.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials [-r/--rename].\n\nOptions:\n\t -r/--rename\tChanges all dots (.) in the Library_ID field of the output to underscores (_).\n\t\t\tSome tools used in nf-core/eager will strip everything after the first dot (.)\n\t\t\tfrom the name of the input file, which can cause naming conflicts in rare cases.\n", file=stderr())
+  write("No input file given. \n\nusage: Rscript pandora2eager.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials [-r/--rename].\n\nOptions:\n\t -r/--rename\tChanges all dots (.) in the Library_ID field of the output to underscores (_).\n\t\t\tSome tools used in nf-core/eager will strip everything after the first dot (.)\n\t\t\tfrom the name of the input file, which can cause naming conflicts in rare cases.\n", file=stderr())
   quit(status = 1)
 }
 
