@@ -4,6 +4,7 @@ From: rocker/tidyverse:4.1.1
 %files
   .credentials
   pandora2eager.R
+  helptext.sh
 
 %post
   chmod 644 /.credentials
@@ -16,7 +17,7 @@ From: rocker/tidyverse:4.1.1
   export input=$1
   
   if [[ ${#@} == 0 || $1 == "-h" || $1 == "--help" ]]; then
-    /pandora2eager.R
+    bash /helptext.sh
   elif [[ ${#@} -gt 1 ]]; then 
     shift
     /pandora2eager.R ${input} /.credentials $*
