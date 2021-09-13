@@ -61,5 +61,5 @@ First use `git clone` to download this repository, then `cd` into the repository
 Copy your valid `.credentials` file into the repository directory.
 With docker installed, run:
 ```bash
-source build_singularity_with_docker.sh
+bash build_singularity_with_docker.sh
 ```
