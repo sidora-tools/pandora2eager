@@ -11,7 +11,6 @@ or Clemens Schmid to obtain them. You also have to be in the institute's subnet.
 You can get usage information and a descripition of optional arguments by running `pandora2eager`
 without specifying any arguments.
 ```
-No input file given. 
 
 usage: Rscript query_pandora_for_data.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials [-r/--rename].
 
