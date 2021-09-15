@@ -42,8 +42,27 @@ Rscript pandora2eager.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.creden
 Including `-r` or `--rename` at the end of your command will change all dots in the 
 Library_ID field of the output to underscores.
 
+## Running the pandora2eager Singularity container
+Information on how to build the pandora2eager singularity container can be found below. 
+The pandora2eager container takes care of all dependencies required for `pandora2eager.R`. The 
+provided wrapper script `pandora2eager.sh` can be used to run the container with the correct 
+configuration for `pandora2eager.R`. 
 
-## pandora2eager Singularity container
+```
+
+Usage: pandora2eager.sh [OPTIONS] /path/to/input_seq_IDs_file.txt
+
+Options:
+	-r/--rename	Changes all dots (.) in the Library_ID field of the output to underscores (_).
+			Some tools used in nf-core/eager will strip everything after the first dot (.)
+			from the name of the input file, which can cause naming conflicts in rare cases.
+	-h/--help	Usage information.
+	-v/--version	Version information.
+
+
+```
+
+## Building the pandora2eager Singularity container
 `p2e_singularity.def` contains build instructions for a singularity image containing all the 
 dependencies for running `pandora2eager.R` installed. To build this container you can use the
 following instructions. You will need to provide a valid `.credentials` file yourself.
