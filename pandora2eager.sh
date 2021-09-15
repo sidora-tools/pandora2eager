@@ -7,12 +7,14 @@ image_path="/mnt/archgen/tools/pandora2eager/${VERSION}"
 
 function Helptext {
   echo "
-Usage: pandora2eager.sh /path/to/input_seq_IDs_file.txt [-r/--rename]
+Usage: pandora2eager.sh [OPTIONS] /path/to/input_seq_IDs_file.txt
 
 Options:
 	-r/--rename	Changes all dots (.) in the Library_ID field of the output to underscores (_).
 			Some tools used in nf-core/eager will strip everything after the first dot (.)
 			from the name of the input file, which can cause naming conflicts in rare cases.
+	-h/--help	Show usage information.
+	-v/--version	Show version information.
 
 "
 }
@@ -29,7 +31,7 @@ while true ; do
         fi ;;
     -h|--help) Helptext; exit 0 ;;
     -r|--rename) rename="-r"; shift 1;;
-    -v|--version) echo "pandora2eager version ${VERSION}"; exit 0;;
+    -v|--version) echo "Version: ${VERSION}"; exit 0;;
     *) echo -e "No Input file given.\n"; Helptext; exit 1;;
   esac
 done
