@@ -80,8 +80,8 @@ singularity build pandora2eager.sif p2e_singularity.def
 ```
 
 ## OSX
-First use `git clone` to download this repository, then `cd` into the repository directory.
-Copy your valid `.credentials` file into the repository directory.
+First use `git clone` to download this repository, then `cd` into the repository directory.</br>
+Copy your valid `.credentials` file into the repository directory.</br>
 With docker installed, run:
 ```bash
 bash build_singularity_with_docker.sh
