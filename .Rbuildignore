@@ -1,0 +1,9 @@
+^pandora2eager\.Rproj$
+^\.Rproj\.user$
+^LICENSE\.md$
+.credentials
+pandora2eager.sif
+pandora2eager.sh
+p2e_singularity.def
+helptext.sh
+build_singularity_with_docker.sh

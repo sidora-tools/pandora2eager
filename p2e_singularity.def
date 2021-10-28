@@ -3,7 +3,6 @@ From: rocker/tidyverse:4.1.1
 
 %files
   .credentials
-  pandora2eager.R
   helptext.sh
 
 %post
@@ -11,6 +10,7 @@ From: rocker/tidyverse:4.1.1
   apt-get update && apt-get install -y libmariadb-dev
   R --slave -e 'install.packages(c("remotes", "DBI", "RMariaDB"))'
   R --slave -e 'remotes::install_github("sidora-tools/sidora.core", dependencies = TRUE)'
+  R --slave -e 'remotes::install_github("sidora-tools/pandora2eager", dependencies = TRUE)'
 
 %runscript
   #!/bin/bash
@@ -20,12 +20,12 @@ From: rocker/tidyverse:4.1.1
     bash /helptext.sh
   elif [[ ${#@} -gt 1 ]]; then 
     shift
-    /pandora2eager.R ${input} /.credentials $*
+    /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials $*
   else
-    /pandora2eager.R ${input} /.credentials
+    /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials
   fi
 
 %labels
   Author  Thiseas C. Lamnidis
   GithubUrl https://github.com/sidora-tools/pandora2eager.git
-  Version 0.2.1-beta
+  Version 0.2.2
