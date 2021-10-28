@@ -1,4 +1,9 @@
-## Infer colour chemistry from sequencer name
+#' Infer colour chemistry from sequencer name
+#'
+#' @param x character. The sequencer name as it appears in Pandora.
+#'
+#' @return integer
+#' @export
 infer_color_chem <- function(x) {
   color_chem <- NULL
   if (x %in% c("K00233 (HiSeq4000)","D00829 (HiSeq2500)","M02279 (MiSeq1)", "M06210 (MiSeq2)")) {
@@ -15,8 +20,12 @@ infer_color_chem <- function(x) {
   return(as.integer(color_chem))
 }
 
-
-## Infer strandedness and udg_treatment from protocol number
+#' Infer strandedness and udg_treatment from protocol number
+#'
+#' @param x character. The libary protocol as it appears in Pandora.
+#'
+#' @return character vector
+#' @export
 infer_library_specs <- function(x) {
   udg_treatment <- NULL
   strandedness <- NULL
