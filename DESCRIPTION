@@ -1,0 +1,15 @@
+Package: pandora2eager
+Title: Prepare an input TSV file for nf-core/eager with informations from Pandora
+Version: 0.2.2
+Authors@R: 
+    person("Thiseas Christos", "Lamnidis", email = "thiseas_christos_lamnidis@eva.mpg.de", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0003-4485-8570"))
+Description: Provided with a list of Pandora Sequencing IDs, pandora2eager.R will pull Site, Individual, Library 
+  and Sequencing information from Pandora and create a TSV file with the information needed to run nf-core/eager
+    on data from these Sequencing IDs.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Imports: 
+    stringr
