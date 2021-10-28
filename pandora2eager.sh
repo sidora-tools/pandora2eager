@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION="0.2.1-beta"
+VERSION="0.2.2"
 TEMP=`getopt -q -o hrv --long help,rename,version -n 'pandora2eager.sh' -- "$@"`
 eval set -- "$TEMP"
 
