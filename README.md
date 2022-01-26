@@ -14,6 +14,8 @@ ABC001.A0102.TF1.1
 ABC002.A0101.TF1.1
 ```
 
+> ⚠️ These IDs are made-up and do not correspond to any valid entries in Pandora.
+
 ## Running the pandora2eager Singularity container
 
 At EVA, a container is available that takes care of all dependencies needed for running `pandora2eager.R`.
