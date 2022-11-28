@@ -10,7 +10,7 @@ library(tidyr)
 library(stringr)
 library(pandora2eager)
 library(optparse)
-
+# hello
 #Function to validate the file type
 validate_file_type <- function(option, opt_str, value, parser) {
   valid_entries <- c("bam","fastq_pathogens") ## TODO comment: should this be embedded within the function? You would want to maybe update this over time no? 
