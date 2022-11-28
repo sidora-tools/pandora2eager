@@ -9,6 +9,7 @@ library(readr)
 library(tidyr)
 library(stringr)
 library(pandora2eager)
+library(optparse)
 
 ## Main function that queries pandora, formats info and spits out a table with the necessary information for eager.
 collect_and_format_info<- function(query_list_seq, con) {
@@ -30,8 +31,8 @@ collect_and_format_info<- function(query_list_seq, con) {
     select(library.Full_Library_Id, capture.Full_Capture_Id, sequencing.Sequencer, sequencing.Sequencing_Id, individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files) %>%
     ## Infer protocol and Organism names from Pandora indexes
     mutate(Protocol=map_chr(`library.Protocol`, function(prot) {df_list[["TAB_Protocol"]] %>% filter(`protocol.Id`==prot) %>% .[["protocol.Name"]]}),
-           Organism=map_chr(`individual.Organism`, function(org) {df_list[["TAB_Organism"]] %>% filter(`organism.Id`==org) %>% .[["organism.Name"]]}),
-           Sequencer=df_list[["TAB_Sequencing_Sequencer"]][["sequencer.Name"]][`sequencing.Sequencer`]) %>%
+            Organism=map_chr(`individual.Organism`, function(org) {df_list[["TAB_Organism"]] %>% filter(`organism.Id`==org) %>% .[["organism.Name"]]}),
+            Sequencer=df_list[["TAB_Sequencing_Sequencer"]][["sequencer.Name"]][`sequencing.Sequencer`]) %>%
     ## Infer SE/PE sequencing from number of FastQs per lane.
     mutate(
       num_fq=map_int(`raw_data.FastQ_Files`, function(fq) {ncol(str_split(fq, " ", simplify = T))}),
@@ -64,32 +65,48 @@ collect_and_format_info<- function(query_list_seq, con) {
 }
 
 ## MAIN ##
-args = commandArgs(trailingOnly=TRUE)
+parser <- OptionParser(usage = "%prog [options] /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials")
+#parser <- argparser::arg_parser( 'Produces the tsv input for nf-core/eager from a list of sequencing IDs',
+#                                name = 'pandora2eager.R')
+parser <- add_option(parser, c("-r","--rename"),
+                        action = 'store_true',
+                        dest = "rename",
+                        help = 'Changes all dots (.) in the Library_ID field of the output to underscores (_).\n\t\t\tSome tools used in nf-core/eager will strip everything after the first dot (.)\n\t\t\tfrom the name of the input file, which can cause naming conflicts in rare cases.\n',
+                        default = FALSE)
+parser <- add_option(parser, c("-d","--debug"),
+                        action = 'store_true',
+                        dest = "debug",
+                        help = 'Activate debug mode, it produces a file called: Debug_table.txt',
+                        default = FALSE)
 
-if (length(args) < 2) {
-  write("No input file given. \n\nusage: Rscript pandora2eager.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials [-r/--rename].\n\nOptions:\n\t -r/--rename\tChanges all dots (.) in the Library_ID field of the output to underscores (_).\n\t\t\tSome tools used in nf-core/eager will strip everything after the first dot (.)\n\t\t\tfrom the name of the input file, which can cause naming conflicts in rare cases.\n", file=stderr())
-  quit(status = 1)
-}
+argv <- parse_args(parser, positional_arguments = 2)
+opts <- argv$options
 
-query_list_seq <- read_tsv(args[1], col_names = "Sequencing", col_types = 'c')
-con <- get_pandora_connection(cred_file = args[2])
+
+#print(argv$args[1])
+#print(argv$args[2])
+
+query_list_seq <- read_tsv(argv$args[1], col_names = "Sequencing", col_types = 'c')
+con <- get_pandora_connection(cred_file = argv$args[2])
 
 results <- collect_and_format_info(query_list_seq, con)
 
-if (!is.na(args[3]) && args[3] == "--debug") {
+if (opts$debug == TRUE) {
   write_tsv(results, "Debug_table.txt")
-} else if (!is.na(args[3]) && ( args[3] == "--rename" || args[3] == "-r")) {
+}
+
+if (opts$rename == TRUE) {
   cat(
     format_tsv(results %>%
-                 mutate(Library_ID=str_replace_all(Library_ID, "[.]", "_")) %>% ## Replace dots in the Library_ID to underscores.
-                 select(Sample_Name, Library_ID,  Lane, Colour_Chemistry,
+                  mutate(Library_ID=str_replace_all(Library_ID, "[.]", "_")) %>% ## Replace dots in the Library_ID to underscores.
+                  select(Sample_Name, Library_ID,  Lane, Colour_Chemistry,
                         SeqType, Organism, Strandedness, UDG_Treatment, R1, R2, BAM))
   )
 } else {
   cat(
     format_tsv(results %>%
               select(Sample_Name, Library_ID,  Lane, Colour_Chemistry,
-                     SeqType, Organism, Strandedness, UDG_Treatment, R1, R2, BAM))
+                      SeqType, Organism, Strandedness, UDG_Treatment, R1, R2, BAM))
   )
 }
 
