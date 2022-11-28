@@ -52,7 +52,7 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       ## Colour Chemistry from sequencer name
       Colour_Chemistry=map_int(sequencing.Sequencer, pandora2eager::infer_color_chem)# map_int creates integer, not character
     )
-    if (file=="NA"){ results <- results %>% 
+    if ( is.na(file) ){ results <- results %>% 
     mutate(
       num_fq=map_int(`raw_data.FastQ_Files`, function(fq) {ncol(str_split(fq, " ", simplify = T))}),
       num_r1=map(`raw_data.FastQ_Files`, function(fq) {sum(grepl("_R1_",str_split(fq, " ", simplify = T)))}),
@@ -72,7 +72,7 @@ collect_and_format_info<- function(query_list_seq, con, file) {
     )} else if(file=="bam"){
       print("Hello!!!")
       results <- results %>%
-      mutate(Lane="NA", R1="NA", R2="NA", BAM="NA")
+      mutate(Lane="NA", R1="NA", R2="NA", BAM="NA", SeqType="SE")
 
     }
 
@@ -116,7 +116,7 @@ opts <- argv$options
 query_list_seq <- read_tsv(argv$args[1], col_names = "Sequencing", col_types = 'c')
 con <- get_pandora_connection(cred_file = argv$args[2])
 
-results <- collect_and_format_info(query_list_seq, con)
+results <- collect_and_format_info(query_list_seq, con, opts$file)
 
 if (opts$debug == TRUE) {
   write_tsv(results, "Debug_table.txt")
