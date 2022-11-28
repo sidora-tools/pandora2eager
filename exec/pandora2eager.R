@@ -11,6 +11,13 @@ library(stringr)
 library(pandora2eager)
 library(optparse)
 
+#Function to validate the file type
+validate_file_type <- function(option, opt_str, value, parser) {
+  valid_entries <- c("bam","fastq_pathogens") ## TODO comment: should this be embedded within the function? You would want to maybe update this over time no? 
+  ifelse(value %in% valid_entries, return(value), stop(call.=F, "\n[pandora2eager.R] error: Invalid file type: '", value, 
+                                                        "'\nAccepted values: ", paste(valid_entries,collapse=", "),"\n\n"))
+}
+
 ## Main function that queries pandora, formats info and spits out a table with the necessary information for eager.
 collect_and_format_info<- function(query_list_seq, con) {
   ## Get complete pandora table
@@ -78,6 +85,13 @@ parser <- add_option(parser, c("-d","--debug"),
                         dest = "debug",
                         help = 'Activate debug mode, it produces a file called: Debug_table.txt',
                         default = FALSE)
+parser <- add_option(parser, c("-f","--file_type"),
+                        type = 'character',
+                        action = "callback",
+                        callback = validate_file_type, 
+                        default= NA,
+                        dest = "file",
+                        help= 'Specify the file type of the input files. Accepted values are: \"bam\", \"fastq_pathogens\". \n\t\t\tNote: if this flag is not provided, raw fastq will be used to generate the table')
 
 argv <- parse_args(parser, positional_arguments = 2)
 opts <- argv$options
