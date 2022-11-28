@@ -10,7 +10,7 @@ library(tidyr)
 library(stringr)
 library(pandora2eager)
 library(optparse)
-# hello
+
 #Function to validate the file type
 validate_file_type <- function(option, opt_str, value, parser) {
   valid_entries <- c("bam","fastq_pathogens") ## TODO comment: should this be embedded within the function? You would want to maybe update this over time no? 
@@ -24,23 +24,34 @@ collect_and_format_info<- function(query_list_seq, con) {
   complete_pandora_table <- join_pandora_tables(
     get_df_list(
       c(make_complete_table_list(
-        c("TAB_Site", "TAB_Raw_Data")
+        c("TAB_Site", "TAB_Analysis")
       )), con = con
     )
-  )
+  ) %>% 
+  convert_all_ids_to_values(., con = con)
 
   ## Get tabs of Organisms, Protocols and Sequencer names
-  df_list <- get_df_list(
-    c("TAB_Organism", "TAB_Protocol", "TAB_Sequencing_Sequencer"),con
-  )
+  #df_list <- get_df_list(
+  #  c("TAB_Organism", "TAB_Protocol", "TAB_Sequencing_Sequencer"),con
+  #)
 
   results <- inner_join(complete_pandora_table, query_list_seq, by=c("sequencing.Full_Sequencing_Id"="Sequencing")) %>%
-    select(library.Full_Library_Id, capture.Full_Capture_Id, sequencing.Sequencer, sequencing.Sequencing_Id, individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files) %>%
+    select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, 
+    individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files, 
+    sequencing.Full_Sequencing_Id, analysis.Result_Directory, analysis.Result) %>%
     ## Infer protocol and Organism names from Pandora indexes
-    mutate(Protocol=map_chr(`library.Protocol`, function(prot) {df_list[["TAB_Protocol"]] %>% filter(`protocol.Id`==prot) %>% .[["protocol.Name"]]}),
-            Organism=map_chr(`individual.Organism`, function(org) {df_list[["TAB_Organism"]] %>% filter(`organism.Id`==org) %>% .[["organism.Name"]]}),
-            Sequencer=df_list[["TAB_Sequencing_Sequencer"]][["sequencer.Name"]][`sequencing.Sequencer`]) %>%
+    #mutate(Protocol=map_chr(`library.Protocol`, function(prot) {df_list[["TAB_Protocol"]] %>% filter(`protocol.Id`==prot) %>% .[["protocol.Name"]]}),
+    #        Organism=map_chr(`individual.Organism`, function(org) {df_list[["TAB_Organism"]] %>% filter(`organism.Id`==org) %>% .[["organism.Name"]]}),
+    #        Sequencer=df_list[["TAB_Sequencing_Sequencer"]][["sequencer.Name"]][`sequencing.Sequencer`]) %>%
     ## Infer SE/PE sequencing from number of FastQs per lane.
+    mutate(
+      # so at the end we have 3 new columns. Strandedness, UDG_T.....)
+      ## Library Strandedness and UDG Treatment from protocol name
+      Strandedness=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[1]}),  #map_chr applies function for every single row in a column, puts it in vector, applies function from pandora2eager, keeps same order, puts it back into column called Strandedness
+      UDG_Treatment=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[2]}),  
+      ## Colour Chemistry from sequencer name
+      Colour_Chemistry=map_int(sequencing.Sequencer, pandora2eager::infer_color_chem)# map_int creates integer, not character
+    ) %>% 
     mutate(
       num_fq=map_int(`raw_data.FastQ_Files`, function(fq) {ncol(str_split(fq, " ", simplify = T))}),
       num_r1=map(`raw_data.FastQ_Files`, function(fq) {sum(grepl("_R1_",str_split(fq, " ", simplify = T)))}),
@@ -57,10 +68,10 @@ collect_and_format_info<- function(query_list_seq, con) {
       ## for a given sequencing ID will be consistent and not dependent on the specific input file passed to this script.
       Lane=as.integer(str_replace(`R1`,"[[:graph:]]*_L([[:digit:]]{3})_R[[:graph:]]*", "\\1"))+8*(sequencing.Sequencing_Id-1),
       ## Library Strandedness and UDG Treatment from protocol name
-      Strandedness=map_chr(`Protocol`, function (.) {pandora2eager::infer_library_specs(.)[1]}),
-      UDG_Treatment=map_chr(`Protocol`, function(.){pandora2eager::infer_library_specs(.)[2]}),
+      #Strandedness=map_chr(`Protocol`, function (.) {pandora2eager::infer_library_specs(.)[1]}),
+      #UDG_Treatment=map_chr(`Protocol`, function(.){pandora2eager::infer_library_specs(.)[2]}),
       ## Colour Chemistry from sequencer name
-      Colour_Chemistry=map_int(`Sequencer`, pandora2eager::infer_color_chem),
+      #Colour_Chemistry=map_int(`Sequencer`, pandora2eager::infer_color_chem),
       ## BAM column always set to NA
       BAM=NA
     ) %>%
