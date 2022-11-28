@@ -24,7 +24,7 @@ collect_and_format_info<- function(query_list_seq, con) {
   complete_pandora_table <- join_pandora_tables(
     get_df_list(
       c(make_complete_table_list(
-        c("TAB_Site", "TAB_Analysis")
+        c("TAB_Site", "TAB_Raw_Data")
       )), con = con
     )
   ) %>% 
@@ -38,7 +38,7 @@ collect_and_format_info<- function(query_list_seq, con) {
   results <- inner_join(complete_pandora_table, query_list_seq, by=c("sequencing.Full_Sequencing_Id"="Sequencing")) %>%
     select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, capture.Full_Capture_Id,  
     individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files, 
-    sequencing.Full_Sequencing_Id, analysis.Result_Directory, analysis.Result) %>%
+    sequencing.Full_Sequencing_Id) %>%
     ## Infer protocol and Organism names from Pandora indexes
     #mutate(Protocol=map_chr(`library.Protocol`, function(prot) {df_list[["TAB_Protocol"]] %>% filter(`protocol.Id`==prot) %>% .[["protocol.Name"]]}),
     #        Organism=map_chr(`individual.Organism`, function(org) {df_list[["TAB_Organism"]] %>% filter(`organism.Id`==org) %>% .[["organism.Name"]]}),
@@ -76,7 +76,7 @@ collect_and_format_info<- function(query_list_seq, con) {
       BAM=NA
     ) %>%
     ## Rename final column names to valid Eager input headers
-    rename(Sample_Name=individual.Full_Individual_Id, Library_ID=capture.Full_Capture_Id,) %>%
+    rename(Sample_Name=individual.Full_Individual_Id, Library_ID=capture.Full_Capture_Id, Organism=individual.Organism) %>%
     ## Keep only final tsv columns in correct order
     select(Sample_Name, Library_ID, Lane, Colour_Chemistry, SeqType, Organism, Strandedness, UDG_Treatment, R1, R2, BAM)
   return(results)
