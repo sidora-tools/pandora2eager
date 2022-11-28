@@ -36,7 +36,7 @@ collect_and_format_info<- function(query_list_seq, con) {
   #)
 
   results <- inner_join(complete_pandora_table, query_list_seq, by=c("sequencing.Full_Sequencing_Id"="Sequencing")) %>%
-    select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, 
+    select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, capture.Full_Capture_Id,  
     individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files, 
     sequencing.Full_Sequencing_Id, analysis.Result_Directory, analysis.Result) %>%
     ## Infer protocol and Organism names from Pandora indexes
