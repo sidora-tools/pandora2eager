@@ -19,7 +19,7 @@ validate_file_type <- function(option, opt_str, value, parser) {
 }
 
 ## Main function that queries pandora, formats info and spits out a table with the necessary information for eager.
-collect_and_format_info<- function(query_list_seq, con) {
+collect_and_format_info<- function(query_list_seq, con, file) {
   ## Get complete pandora table
   complete_pandora_table <- join_pandora_tables(
     get_df_list(
@@ -51,7 +51,8 @@ collect_and_format_info<- function(query_list_seq, con) {
       UDG_Treatment=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[2]}),  
       ## Colour Chemistry from sequencer name
       Colour_Chemistry=map_int(sequencing.Sequencer, pandora2eager::infer_color_chem)# map_int creates integer, not character
-    ) %>% 
+    )
+    if (file=="NA"){ results <- results %>% 
     mutate(
       num_fq=map_int(`raw_data.FastQ_Files`, function(fq) {ncol(str_split(fq, " ", simplify = T))}),
       num_r1=map(`raw_data.FastQ_Files`, function(fq) {sum(grepl("_R1_",str_split(fq, " ", simplify = T)))}),
@@ -67,19 +68,20 @@ collect_and_format_info<- function(query_list_seq, con) {
       ## artificially inflated (by 8 which is the max lane number in our sequencers). This approach has the advantage that the output
       ## for a given sequencing ID will be consistent and not dependent on the specific input file passed to this script.
       Lane=as.integer(str_replace(`R1`,"[[:graph:]]*_L([[:digit:]]{3})_R[[:graph:]]*", "\\1"))+8*(sequencing.Sequencing_Id-1),
-      ## Library Strandedness and UDG Treatment from protocol name
-      #Strandedness=map_chr(`Protocol`, function (.) {pandora2eager::infer_library_specs(.)[1]}),
-      #UDG_Treatment=map_chr(`Protocol`, function(.){pandora2eager::infer_library_specs(.)[2]}),
-      ## Colour Chemistry from sequencer name
-      #Colour_Chemistry=map_int(`Sequencer`, pandora2eager::infer_color_chem),
-      ## BAM column always set to NA
       BAM=NA
-    ) %>%
+    )} else if(file=="bam"){
+      print("Hello!!!")
+      results <- results %>%
+      mutate(Lane="NA", R1="NA", R2="NA", BAM="NA")
+
+    }
+
+    results_Final <- results %>%
     ## Rename final column names to valid Eager input headers
     rename(Sample_Name=individual.Full_Individual_Id, Library_ID=capture.Full_Capture_Id, Organism=individual.Organism) %>%
     ## Keep only final tsv columns in correct order
     select(Sample_Name, Library_ID, Lane, Colour_Chemistry, SeqType, Organism, Strandedness, UDG_Treatment, R1, R2, BAM)
-  return(results)
+  return(results_Final)
 }
 
 ## MAIN ##
