@@ -95,7 +95,7 @@ collect_and_format_info<- function(query_list_seq, con, file) {
 
       results <- results %>%
       inner_join(analysis_tab, by=c("sequencing.Full_Sequencing_Id"="seqID")) %>%
-      mutate(Lane=row_number(), R1= analysis.Result, R2="NA", BAM="NA", SeqType="SE")
+      mutate(Lane=row_number(), R1= analysis.Result, R2=NA, BAM=NA, SeqType="SE")
     }
 
     results_Final <- results %>%
