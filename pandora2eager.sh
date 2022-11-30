@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 VERSION="0.3.0"
-TEMP=`getopt -q -o hf:rv --long help,file_type:,rename,version -n 'pandora2eager.sh' -- "$@"`
+TEMP=`getopt -q -o hf:drv --long help,file_type:,rename,debug,version -n 'pandora2eager.sh' -- "$@"`
 eval set -- "$TEMP"
 
 image_path="/mnt/archgen/tools/pandora2eager/${VERSION}"
@@ -25,6 +25,7 @@ Options:
 ## Default parameter values
 rename=''
 file_type=''
+debug=''
 
 while true ; do
   case "$1" in
@@ -37,6 +38,7 @@ while true ; do
     -r|--rename) rename="-r"; shift 1;;
     -v|--version) echo "Version: ${VERSION}"; exit 0;;
     -f|--file_type) file_type="-f $2"; shift 2;;
+    -d|--debug) debug="-d"; shift 1;;
     *) echo -e "No Input file given.\n"; Helptext; exit 1;;
   esac
 done
@@ -46,4 +48,4 @@ input_path=$(dirname $(readlink -f ${fn1}))
 input_fn=$(basename ${fn1})
 mount_arg="${input_path}:/data"
 
-singularity run --bind ${mount_arg} ${image_path}/pandora2eager.sif /data/${input_fn} ${rename} ${file_type}
+singularity run --bind ${mount_arg} ${image_path}/pandora2eager.sif /data/${input_fn} ${rename} ${file_type} ${debug}
