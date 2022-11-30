@@ -98,8 +98,10 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       SeqType="SE")
     } else if(file=="fastq_pathogens"){
       print("Hola!!!")
+      analysis_tab <- get_analysis_tab(query_list_seq, con) %>%
+      filter(analysis.Title=="Fastq mapped reads")
       results <- results %>%
-      mutate(Lane="NA", R1="NA", R2="NA", BAM="NA", SeqType="SE")
+      mutate(Lane=row_number(), R1=analysis.Result, R2="NA", BAM="NA", SeqType="SE")
     }
 
     results_Final <- results %>%
