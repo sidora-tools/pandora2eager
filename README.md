@@ -50,12 +50,25 @@ You can get usage information and a descripition of optional arguments by runnin
 without specifying any arguments.
 ```
 
-usage: Rscript query_pandora_for_data.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials [-r/--rename].
+Usage: pandora2eager.R [options] /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials
+
 
 Options:
-	 -r/--rename	Changes all dots (.) in the Library_ID field of the output to underscores (_).
-			Some tools used in nf-core/eager will strip everything after the first dot (.)
-			from the name of the input file, which can cause naming conflicts in rare cases.
+        -h, --help
+                Show this help message and exit
+
+        -r, --rename
+                Changes all dots (.) in the Library_ID field of the output to underscores (_).
+                        Some tools used in nf-core/eager will strip everything after the first dot (.)
+                        from the name of the input file, which can cause naming conflicts in rare cases.
+
+
+        -d, --debug
+                Activate debug mode, it produces a file called: Debug_table.txt
+
+        -f FILE_TYPE, --file_type=FILE_TYPE
+                Specify the file type of the input files. Accepted values are: "bam", "fastq_pathogens". 
+                        Note: if this flag is not provided, raw fastq will be used to generate the table
 
 ```
 
@@ -68,6 +81,12 @@ Rscript pandora2eager.R /path/to/input_seq_IDs_file.txt /path/to/pandora/.creden
 
 Including `-r` or `--rename` at the end of your command will change all dots in the 
 Library_ID field of the output to underscores.
+
+By default pandora2eager.R will output the raw fastq files. However, you can change this behaviour by adding the `-f` 
+or `--file_type` flag and specifying the allowed options: `bam` or `fastq_pathogens`.
+The `bam` mode will produce a table containing as input for eager the ouput BAM file from the Autorun pipelines for Human.
+The `fastq_pathogens` mode will produce a table containing as input for eager the output fastq containing mapped reads to
+the multi-FASTA reference from the Pathogen prescreening pipelines. 
 
 # Building the pandora2eager Singularity container
 `p2e_singularity.def` contains build instructions for a singularity image containing all the 

@@ -8,7 +8,7 @@ From: rocker/tidyverse:4.1.1
 %post
   chmod 644 /.credentials
   apt-get update && apt-get install -y libmariadb-dev
-  R --slave -e 'install.packages(c("remotes", "DBI", "RMariaDB"))'
+  R --slave -e 'install.packages(c("remotes", "DBI", "RMariaDB", "optparse"))'
   R --slave -e 'remotes::install_github("sidora-tools/sidora.core", dependencies = TRUE)'
   R --slave -e 'remotes::install_github("sidora-tools/pandora2eager", dependencies = TRUE)'
 
@@ -28,4 +28,4 @@ From: rocker/tidyverse:4.1.1
 %labels
   Author  Thiseas C. Lamnidis
   GithubUrl https://github.com/sidora-tools/pandora2eager.git
-  Version 0.2.2
+  Version 0.3.0
