@@ -40,32 +40,22 @@ collect_and_format_info<- function(query_list_seq, con, file) {
   ) %>% 
   convert_all_ids_to_values(., con = con)
 
-  ## Get tabs of Organisms, Protocols and Sequencer names
-  #df_list <- get_df_list(
-  #  c("TAB_Organism", "TAB_Protocol", "TAB_Sequencing_Sequencer"),con
-  #)
-
   results <- inner_join(complete_pandora_table, query_list_seq, by=c("sequencing.Full_Sequencing_Id"="Sequencing")) %>%
     select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, capture.Full_Capture_Id,  
     individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files, 
     sequencing.Full_Sequencing_Id) %>%
-    ## Infer protocol and Organism names from Pandora indexes
-    #mutate(Protocol=map_chr(`library.Protocol`, function(prot) {df_list[["TAB_Protocol"]] %>% filter(`protocol.Id`==prot) %>% .[["protocol.Name"]]}),
-    #        Organism=map_chr(`individual.Organism`, function(org) {df_list[["TAB_Organism"]] %>% filter(`organism.Id`==org) %>% .[["organism.Name"]]}),
-    #        Sequencer=df_list[["TAB_Sequencing_Sequencer"]][["sequencer.Name"]][`sequencing.Sequencer`]) %>%
-    ## Infer SE/PE sequencing from number of FastQs per lane.
     mutate(
-      # so at the end we have 3 new columns. Strandedness, UDG_T.....)
       ## Library Strandedness and UDG Treatment from protocol name
-      Strandedness=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[1]}),  #map_chr applies function for every single row in a column, puts it in vector, applies function from pandora2eager, keeps same order, puts it back into column called Strandedness
+      Strandedness=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[1]}),
       UDG_Treatment=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[2]}),  
       ## Colour Chemistry from sequencer name
-      Colour_Chemistry=map_int(sequencing.Sequencer, pandora2eager::infer_color_chem)# map_int creates integer, not character
+      Colour_Chemistry=map_int(sequencing.Sequencer, pandora2eager::infer_color_chem)
     )
     if ( is.na(file) ){ results <- results %>% 
     mutate(
       num_fq=map_int(`raw_data.FastQ_Files`, function(fq) {ncol(str_split(fq, " ", simplify = T))}),
       num_r1=map(`raw_data.FastQ_Files`, function(fq) {sum(grepl("_R1_",str_split(fq, " ", simplify = T)))}),
+      ## Infer SE/PE sequencing from number of FastQs per lane.
       SeqType=ifelse(num_fq == num_r1, "SE", "PE")) %>%
     select(-starts_with("num_")) %>%
     ## Make R1 and R2 columns out of the FastQ file(s)
@@ -80,11 +70,13 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       Lane=as.integer(str_replace(`R1`,"[[:graph:]]*_L([[:digit:]]{3})_R[[:graph:]]*", "\\1"))+8*(sequencing.Sequencing_Id-1),
       BAM=NA
     )} else if(file=="bam"){
-      print("Hello!!!")
       analysis_tab <- get_analysis_tab(query_list_seq, con) %>%
+      ##Filter all the analysis.Results_Directory that have run through human pipelines
       filter(grepl("Human",analysis.Result_Directory)) %>%
+      ##Filter out the bam file for the Libmerge_Genotypes, this will be done within eager
       filter(!grepl("_Libmerge_Genotypes",analysis.Result_Directory)) %>%
-      select(seqID, analysis.Result_Directory) %>% 
+      select(seqID, analysis.Result_Directory) %>%
+      ##Remove duplicated lines 
       distinct()
 
       results <- results %>%
@@ -97,11 +89,13 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       BAM=paste0(analysis.Result_Directory,sequencing.Full_Sequencing_Id,".bam"), 
       SeqType="SE")
     } else if(file=="fastq_pathogens"){
-      print("Hola!!!")
       analysis_tab <- get_analysis_tab(query_list_seq, con) %>%
+      ##Filter all the analysis.Title that have a fastq with mapped reads (only existing in the prescreening pipelines)
       filter(analysis.Title=="Fastq mapped reads")
+
       results <- results %>%
-      mutate(Lane=row_number(), R1=analysis.Result, R2="NA", BAM="NA", SeqType="SE")
+      inner_join(analysis_tab, by=c("sequencing.Full_Sequencing_Id"="seqID")) %>%
+      mutate(Lane=row_number(), R1= analysis.Result, R2="NA", BAM="NA", SeqType="SE")
     }
 
     results_Final <- results %>%
@@ -114,8 +108,6 @@ collect_and_format_info<- function(query_list_seq, con, file) {
 
 ## MAIN ##
 parser <- OptionParser(usage = "%prog [options] /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials")
-#parser <- argparser::arg_parser( 'Produces the tsv input for nf-core/eager from a list of sequencing IDs',
-#                                name = 'pandora2eager.R')
 parser <- add_option(parser, c("-r","--rename"),
                         action = 'store_true',
                         dest = "rename",
@@ -136,10 +128,6 @@ parser <- add_option(parser, c("-f","--file_type"),
 
 argv <- parse_args(parser, positional_arguments = 2)
 opts <- argv$options
-
-
-#print(argv$args[1])
-#print(argv$args[2])
 
 query_list_seq <- read_tsv(argv$args[1], col_names = "Sequencing", col_types = 'c')
 con <- get_pandora_connection(cred_file = argv$args[2])
