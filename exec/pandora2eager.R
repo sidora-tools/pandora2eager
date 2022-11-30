@@ -83,7 +83,7 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       inner_join(analysis_tab, by=c("sequencing.Full_Sequencing_Id"="seqID")
       ) %>%
       mutate(Lane=row_number(), 
-      R1="NA", 
+      R1=NA, 
       R2="NA", 
       analysis.Result_Directory=str_replace(analysis.Result_Directory, "^/projects1", "/mnt/archgen"),
       BAM=paste0(analysis.Result_Directory,sequencing.Full_Sequencing_Id,".bam"), 
