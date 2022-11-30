@@ -13,7 +13,7 @@ library(optparse)
 
 # Function to validate the file type
 validate_file_type <- function(option, opt_str, value, parser) {
-  valid_entries <- c("bam","fastq_pathogens") ## TODO comment: should this be embedded within the function? You would want to maybe update this over time no? 
+  valid_entries <- c("bam","fastq_pathogens")
   ifelse(value %in% valid_entries, return(value), stop(call.=F, "\n[pandora2eager.R] error: Invalid file type: '", value, 
                                                         "'\nAccepted values: ", paste(valid_entries,collapse=", "),"\n\n"))
 }
