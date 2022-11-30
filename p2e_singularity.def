@@ -10,7 +10,7 @@ From: rocker/tidyverse:4.1.1
   apt-get update && apt-get install -y libmariadb-dev
   R --slave -e 'install.packages(c("remotes", "DBI", "RMariaDB", "optparse"))'
   R --slave -e 'remotes::install_github("sidora-tools/sidora.core", dependencies = TRUE)'
-  R --slave -e 'remotes::install_github("sidora-tools/pandora2eager", dependencies = TRUE)'
+  R --slave -e 'remotes::install_github("aidaanva/pandora2eager", dependencies = TRUE)'
 
 %runscript
   #!/bin/bash
