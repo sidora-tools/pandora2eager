@@ -22,9 +22,9 @@ validate_file_type <- function(option, opt_str, value, parser) {
 get_analysis_tab <- function(query_list_seq, con) {
   # get analysis tab from Pandora
   analysis_tab <- get_df("TAB_Analysis", con) %>%
-  mutate(seqID=str_extract(analysis.Full_Analysis_Id, "[A-Z0-9].[A-z][0-9].[A-Z][A-Z][0-9]*\.[0-9]+")) %>%
-  inner_join(complete_pandora_table, query_list_seq, by=c("seqID"="Sequencing")) %>%
-  select(seqID, analysis.Result, analysis.Result_Directory)
+  mutate(seqID=str_extract(analysis.Full_Analysis_Id, "[A-Z0-9]*.[A-z][0-9]*.[A-Z][A-Z][0-9]*.[0-9]+")) %>%
+  inner_join(query_list_seq, by=c("seqID"="Sequencing")) %>%
+  select(seqID, analysis.Result, analysis.Result_Directory, analysis.Title)
   return(analysis_tab)
 }
 
@@ -81,9 +81,14 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       BAM=NA
     )} else if(file=="bam"){
       print("Hello!!!")
-      analysis_tab <- get_analysis_tab(query_list_seq, con)
+      analysis_tab <- get_analysis_tab(query_list_seq, con) %>%
+      filter(grepl("Human",analysis.Result_Directory)) %>%
+      filter(!grepl("_Libmerge_Genotypes",analysis.Result_Directory)) %>%
+      select(seqID, analysis.Result_Directory) %>% 
+      distinct()
+
       results <- results %>%
-      inner_join(analysis_tab, by=c("sequencing.Full_Sequencing_Id"=="seqID")
+      inner_join(analysis_tab, by=c("sequencing.Full_Sequencing_Id"="seqID")
       ) %>%
       mutate(Lane=row_number(), 
       R1="NA", 
@@ -96,7 +101,6 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       results <- results %>%
       mutate(Lane="NA", R1="NA", R2="NA", BAM="NA", SeqType="SE")
     }
-    fi
 
     results_Final <- results %>%
     ## Rename final column names to valid Eager input headers
