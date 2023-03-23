@@ -20,9 +20,9 @@ From: rocker/tidyverse:4.1.1
     bash /helptext.sh
   elif [[ ${#@} -gt 1 ]]; then 
     shift
-    /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials $*
+    Rscript --no-environ /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials $*
   else
-    /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials
+    Rscript --no-environ /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials
   fi
 
 %labels
