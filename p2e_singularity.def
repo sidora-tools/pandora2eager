@@ -15,17 +15,17 @@ From: rocker/tidyverse:4.1.1
 %runscript
   #!/bin/bash
   export input=$1
-  
+
   if [[ ${#@} == 0 || $1 == "-h" || $1 == "--help" ]]; then
     bash /helptext.sh
-  elif [[ ${#@} -gt 1 ]]; then 
+  elif [[ ${#@} -gt 1 ]]; then
     shift
-    Rscript --no-environ /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials $*
+    Rscript  --vanilla /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials $*
   else
-    Rscript --no-environ /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials
+    Rscript  --vanilla /usr/local/lib/R/site-library/pandora2eager/exec/pandora2eager.R ${input} /.credentials
   fi
 
 %labels
   Author  Thiseas C. Lamnidis
   GithubUrl https://github.com/sidora-tools/pandora2eager.git
-  Version 0.3.0
+  Version 0.4.0

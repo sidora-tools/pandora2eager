@@ -14,7 +14,7 @@ library(optparse)
 # Function to validate the file type
 validate_file_type <- function(option, opt_str, value, parser) {
   valid_entries <- c("bam","fastq_pathogens")
-  ifelse(value %in% valid_entries, return(value), stop(call.=F, "\n[pandora2eager.R] error: Invalid file type: '", value, 
+  ifelse(value %in% valid_entries, return(value), stop(call.=F, "\n[pandora2eager.R] error: Invalid file type: '", value,
                                                         "'\nAccepted values: ", paste(valid_entries,collapse=", "),"\n\n"))
 }
 
@@ -37,21 +37,24 @@ collect_and_format_info<- function(query_list_seq, con, file) {
         c("TAB_Site", "TAB_Raw_Data")
       )), con = con
     )
-  ) %>% 
+  ) %>%
   convert_all_ids_to_values(., con = con)
 
+  ## Get protocol tab with udg and strandedness info for each library protocol
+  pandora_library_protocol_info <- pandora2eager:::load_library_protocol_info(con)
+
   results <- inner_join(complete_pandora_table, query_list_seq, by=c("sequencing.Full_Sequencing_Id"="Sequencing")) %>%
-    select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, capture.Full_Capture_Id,  
-    individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files, 
+    select(library.Full_Library_Id, sequencing.Sequencer, sequencing.Sequencing_Id, capture.Full_Capture_Id,
+    individual.Full_Individual_Id, library.Protocol, individual.Organism, raw_data.FastQ_Files,
     sequencing.Full_Sequencing_Id) %>%
     mutate(
       ## Library Strandedness and UDG Treatment from protocol name
-      Strandedness=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[1]}),
-      UDG_Treatment=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(.)[2]}),  
+      Strandedness=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(., pandora_library_protocol_info)[1]}),
+      UDG_Treatment=map_chr(library.Protocol, function(.){pandora2eager::infer_library_specs(., pandora_library_protocol_info)[2]}),
       ## Colour Chemistry from sequencer name
       Colour_Chemistry=map_int(sequencing.Sequencer, pandora2eager::infer_color_chem)
     )
-    if ( is.na(file) ){ results <- results %>% 
+    if ( is.na(file) ){ results <- results %>%
     mutate(
       num_fq=map_int(`raw_data.FastQ_Files`, function(fq) {ncol(str_split(fq, " ", simplify = T))}),
       num_r1=map(`raw_data.FastQ_Files`, function(fq) {sum(grepl("_R1_",str_split(fq, " ", simplify = T)))}),
@@ -76,17 +79,17 @@ collect_and_format_info<- function(query_list_seq, con, file) {
       ##Filter out the bam file for the Libmerge_Genotypes, this will be done within eager
       filter(!grepl("_Libmerge_Genotypes",analysis.Result_Directory)) %>%
       select(seqID, analysis.Result_Directory) %>%
-      ##Remove duplicated lines 
+      ##Remove duplicated lines
       distinct()
 
       results <- results %>%
       inner_join(analysis_tab, by=c("sequencing.Full_Sequencing_Id"="seqID")
       ) %>%
-      mutate(Lane=row_number(), 
-      R1=NA, 
-      R2=NA, 
+      mutate(Lane=row_number(),
+      R1=NA,
+      R2=NA,
       analysis.Result_Directory=str_replace(analysis.Result_Directory, "^/projects1", "/mnt/archgen"),
-      BAM=paste0(analysis.Result_Directory,sequencing.Full_Sequencing_Id,".bam"), 
+      BAM=paste0(analysis.Result_Directory,sequencing.Full_Sequencing_Id,".bam"),
       SeqType="SE")
     } else if(file=="fastq_pathogens"){
       analysis_tab <- get_analysis_tab(query_list_seq, con) %>%
@@ -121,7 +124,7 @@ parser <- add_option(parser, c("-d","--debug"),
 parser <- add_option(parser, c("-f","--file_type"),
                         type = 'character',
                         action = "callback",
-                        callback = validate_file_type, 
+                        callback = validate_file_type,
                         default= NA,
                         dest = "file",
                         help= 'Specify the file type of the input files. Accepted values are: \"bam\", \"fastq_pathogens\". \n\t\t\tNote: if this flag is not provided, raw fastq will be used to generate the table')

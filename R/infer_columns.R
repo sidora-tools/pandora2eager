@@ -22,82 +22,29 @@ infer_color_chem <- function(x) {
 
 #' Infer strandedness and udg_treatment from protocol number
 #'
-#' @param x character. The libary protocol as it appears in Pandora.
+#' @param pandora_library_protocol_info Tibble with pandora protocol info
+#' @param x character. The libbary protocol as it appears in Pandora.
 #'
 #' @return character vector
+#' @importFrom magrittr %>%
+#' @importFrom magrittr %$%
 #' @export
-infer_library_specs <- function(x) {
+infer_library_specs <- function(x, pandora_library_protocol_info) {
   udg_treatment <- NULL
-  strandedness <- NULL
-  words <- stringr::str_split(x, " " , simplify = T)
-  ## ssLib non-UDG
-  if ((words[,1] == "ssLibrary" || words[,1] == "SsLibrary") && utils::tail(words[1,],1) == "2018") {
-    strandedness = "single"
-    udg_treatment = "none"
+  strandedness  <- NULL
 
-  ## New ssDNA non-UDG protocol added in 2023
-  } else if (x == "ssLibrary nonUDG 96well 3.0 2023") {
-    strandedness = "single"
-    udg_treatment = "none"
+  ## . %$% x is equivalent to . %>% pull(x)
+  udg_treatment <- pandora_library_protocol_info %>% dplyr::filter(`protocol_name` == x) %$% `udg`
+  strandedness  <- pandora_library_protocol_info %>% dplyr::filter(`protocol_name` == x) %$% `strandedness`
 
-    ## ssLib Unknown UDG
-  } else if (words[,1] == "ssLibrary" && utils::tail(words[1,],1) == "EVA") {
-    message("Inference of UDG treatment failed for protocol '",x,"'. Setting to 'Unknown'.
-You will need to fill in this information manually, since this protocol could refer to either UDG treatment.
-")
-    strandedness = "single"
-    udg_treatment = "Unknown"
-
-    ## ssLib automated non-UDG Leipzig
-  } else if (words[,1] == "Automated_ss_library_preparation_noUDG_EVA_CoreUnit") {
-    strandedness = "single"
-    udg_treatment = "none"
-
-    ## ssLib automated half-UDG Leipzig
-  } else if (words[,1] == "Automated_ss_library_preparation_partialUDG_EVA_CoreUnit") {
-    strandedness = "single"
-    udg_treatment = "half"
-
-    ## External
-  } else if (words[,1] %in% c("Extern", "External")) {
-    strandedness = "Unknown"
-    udg_treatment = "Unknown"
-    message("Cannot infer strandedness and UDG treatment for external libraries. Setting both to \"Unknown\".")
-
-    ## Modern DNA
-  } else if (words[,1] == "Illumina") {
-    strandedness = "double"
-    udg_treatment = "none"
-
-    ## dsLib
-  } else if (words[,1] == "dsLibrary") {
-    strandedness = "double"
-
-    ## Non UDG
-    if (words[,3] == "UDG" ) {
-      udg_treatment = "none"
-
-      ## Half UDG
-    } else if (words[,3] == "half") {
-      udg_treatment = "half"
-
-      ## Full UDG
-    } else if (words[,3] == "full") {
-      udg_treatment = "full"
-    }
-
-    ## Blanks
-  } else if (words[,1] == "Capture") {
-    udg_treatment = "none"
-    strandedness = "double"
-
-    ## Inference failed?
-  } else {
-    message("Inference of strandedness and UDG treatment failed for library protocol '",x,"'. Setting both fields to 'Unknown'. Please fill in this informations manually.
+  ## Throw message if unknown and warning if failed
+  if (udg_treatment == "Unknown" | strandedness == "Unknown") {
+    message("Inference of strandedness and/or UDG treatment failed for library protocol '",x,"'. Field(s) set to 'Unknown'. Please fill in this informations manually.
 Contact @TCLamnidis if you think the library protocol stated could be automatically inferred.
 ")
-    udg_treatment = "Unknown"
-    strandedness = "Unknown"
+  } else if (udg_treatment == "Invalid" | strandedness == "Invalid") {
+    warning("ERROR: Invalid inference of strandedness and/or UDG treatment failed for library protocol '",x,"'!")
   }
+
   return(c(strandedness, udg_treatment))
 }

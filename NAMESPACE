@@ -2,3 +2,5 @@
 
 export(infer_color_chem)
 export(infer_library_specs)
+importFrom(magrittr,"%$%")
+importFrom(magrittr,"%>%")

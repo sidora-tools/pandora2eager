@@ -4,10 +4,12 @@
 \alias{infer_library_specs}
 \title{Infer strandedness and udg_treatment from protocol number}
 \usage{
-infer_library_specs(x)
+infer_library_specs(x, pandora_library_protocol_info)
 }
 \arguments{
-\item{x}{character. The libary protocol as it appears in Pandora.}
+\item{x}{character. The libbary protocol as it appears in Pandora.}
+
+\item{pandora_library_protocol_info}{Tibble with pandora protocol info}
 }
 \value{
 character vector

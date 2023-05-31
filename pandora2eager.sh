@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION="0.3.0"
+VERSION="0.4.0"
 TEMP=`getopt -q -o hf:drv --long help,file_type:,rename,debug,version -n 'pandora2eager.sh' -- "$@"`
 eval set -- "$TEMP"
 
@@ -29,7 +29,7 @@ debug=''
 
 while true ; do
   case "$1" in
-    --) if [[ $2 == '' ]]; then 
+    --) if [[ $2 == '' ]]; then
           echo -e "No Input file given.\n" ; Helptext ; exit 1
         else
           fn1=$2 ; shift 2; break
