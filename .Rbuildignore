@@ -7,3 +7,4 @@ pandora2eager.sh
 p2e_singularity.def
 helptext.sh
 build_singularity_with_docker.sh
+^test_data
