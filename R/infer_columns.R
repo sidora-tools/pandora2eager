@@ -35,6 +35,11 @@ infer_library_specs <- function(x) {
     strandedness = "single"
     udg_treatment = "none"
 
+  ## New ssDNA non-UDG protocol added in 2023
+  } else if (x == "ssLibrary nonUDG 96well 3.0 2023") {
+    strandedness = "single"
+    udg_treatment = "none"
+
     ## ssLib Unknown UDG
   } else if (words[,1] == "ssLibrary" && utils::tail(words[1,],1) == "EVA") {
     message("Inference of UDG treatment failed for protocol '",x,"'. Setting to 'Unknown'.
@@ -89,7 +94,7 @@ You will need to fill in this information manually, since this protocol could re
     ## Inference failed?
   } else {
     message("Inference of strandedness and UDG treatment failed for library protocol '",x,"'. Setting both fields to 'Unknown'. Please fill in this informations manually.
-Contact lamnidis@shh.mpg.de if you think the library protocol stated could be automatically inferred.
+Contact @TCLamnidis if you think the library protocol stated could be automatically inferred.
 ")
     udg_treatment = "Unknown"
     strandedness = "Unknown"
