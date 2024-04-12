@@ -14,7 +14,7 @@ infer_color_chem <- function(x) {
     color_chem=NA
     message("MinIon sequencing does not have color chemistry. Set to NA.")
   } else {
-    message("Color chemistry inference was not successful. Uninferred color chemistries set to 'Unknown'. Contact: lamnidis@shh.mpg.de.")
+    message("Color chemistry inference was not successful. Uninferred color chemistries set to 'Unknown'. Contact: @TCLamnidis")
     color_chem="Unknown"
   }
   return(as.integer(color_chem))
