@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-VERSION="0.4.0"
+VERSION="0.5.0"
 TEMP=`getopt -q -o hf:drv --long help,file_type:,rename,debug,version -n 'pandora2eager.sh' -- "$@"`
 eval set -- "$TEMP"
 
