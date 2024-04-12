@@ -8,7 +8,7 @@ infer_color_chem <- function(x) {
   color_chem <- NULL
   if (x %in% c("K00233 (HiSeq4000)","D00829 (HiSeq2500)","M02279 (MiSeq1)", "M06210 (MiSeq2)")) {
     color_chem=4
-  } else if (x %in% c("NS500382 (Rosa)","NS500559 (Tosca)" )) {
+  } else if (x %in% c("NS500382 (Rosa)","NS500559 (Tosca)", "LH00454 (NovaSeq X Plus)" )) {
     color_chem=2
   } else if (x %in% c("MinIon 1", "MinIon 2", "MinIon HKI")) {
     color_chem=NA
