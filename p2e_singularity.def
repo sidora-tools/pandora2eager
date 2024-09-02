@@ -28,4 +28,4 @@ From: rocker/tidyverse:4.1.1
 %labels
   Author  Thiseas C. Lamnidis
   GithubUrl https://github.com/sidora-tools/pandora2eager.git
-  Version 0.5.0
+  Version 0.6.0
