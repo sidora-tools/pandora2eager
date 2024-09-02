@@ -162,7 +162,7 @@ results <- collect_and_format_info(query_list_seq, con, opts$file)
 DBI::dbDisconnect(con)
 
 ## Add suffixes if requested. This happens before debugging tables to reflect this behaviour in the debug table
-if ( opts$ss_suffix ) {
+if ( opts$ss_suffix == TRUE ) {
   results <- add_ss_suffix(results)
 }
 
