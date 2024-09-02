@@ -148,7 +148,7 @@ parser <- add_option(parser, c("-f","--file_type"),
 parser <- add_option(parser, c("-s","--add_ss_suffix"),
                         action = 'store_true',
                         dest = "ss_suffix",
-                        help = 'Adds the suffix \'_ss\' to the Sample_ID and Library_ID field of the output for single-stranded libraries.',
+                        help = "Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.",
                         default = FALSE)
 
 argv <- parse_args(parser, positional_arguments = 2)
