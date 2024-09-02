@@ -144,11 +144,11 @@ parser <- add_option(parser, c("-f","--file_type"),
                         callback = validate_file_type,
                         default= NA,
                         dest = "file",
-                        help= 'Specify the file type of the input files. Accepted values are: \"bam\", \"fastq_pathogens\". \n\t\t\tNote: if this flag is not provided, raw fastq will be used to generate the table'),
+                        help= 'Specify the file type of the input files. Accepted values are: \"bam\", \"fastq_pathogens\". \n\t\t\tNote: if this flag is not provided, raw fastq will be used to generate the table')
 parser <- add_option(parser, c("-s","--add_ss_suffix"),
                         action = 'store_true',
                         dest = "ss_suffix",
-                        help = "Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.",
+                        help = 'Adds the suffix \'_ss\' to the Sample_ID and Library_ID field of the output for single-stranded libraries.',
                         default = FALSE)
 
 argv <- parse_args(parser, positional_arguments = 2)
