@@ -1,5 +1,5 @@
 Package: pandora2eager
-Title: Prepare an input TSV file for nf-core/eager with informations from Pandora
+Title: Prepare an input TSV file for nf-core/eager with information from Pandora
 Version: 0.6.0
 Authors@R: 
     person("Thiseas Christos", "Lamnidis", email = "thiseas_christos_lamnidis@eva.mpg.de", role = c("aut", "cre"),
