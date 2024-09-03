@@ -109,6 +109,23 @@ collect_and_format_info<- function(query_list_seq, con, file) {
   return(results_Final)
 }
 
+## Function to add a suffix to the Sample_ID and Library_ID field of the output for single-stranded libraries.
+add_ss_suffix <- function(results, suffix="_ss") {
+    x <- results %>%
+      mutate(
+        Sample_Name=case_when(
+          Strandedness == "single" ~ paste0(Sample_Name, suffix),
+          TRUE ~ Sample_Name
+        ),
+        Library_ID=case_when(
+          ## Insert the suffix after the first six characters (since Pandora individual IDs are always 6 characters long)
+          Strandedness == "single" ~ sub('^(.{6})(.*$)', paste0('\\1',suffix,'\\2'), Library_ID),
+          TRUE ~ Library_ID
+        )
+      )
+  return(x)
+}
+
 ## MAIN ##
 parser <- OptionParser(usage = "%prog [options] /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials")
 parser <- add_option(parser, c("-r","--rename"),
@@ -128,6 +145,11 @@ parser <- add_option(parser, c("-f","--file_type"),
                         default= NA,
                         dest = "file",
                         help= 'Specify the file type of the input files. Accepted values are: \"bam\", \"fastq_pathogens\". \n\t\t\tNote: if this flag is not provided, raw fastq will be used to generate the table')
+parser <- add_option(parser, c("-s","--add_ss_suffix"),
+                        action = 'store_true',
+                        dest = "ss_suffix",
+                        help = "Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.",
+                        default = FALSE)
 
 argv <- parse_args(parser, positional_arguments = 2)
 opts <- argv$options
@@ -136,6 +158,13 @@ query_list_seq <- read_tsv(argv$args[1], col_names = "Sequencing", col_types = '
 con <- get_pandora_connection(cred_file = argv$args[2])
 
 results <- collect_and_format_info(query_list_seq, con, opts$file)
+
+DBI::dbDisconnect(con)
+
+## Add suffixes if requested. This happens before debugging tables to reflect this behaviour in the debug table
+if ( opts$ss_suffix == TRUE ) {
+  results <- add_ss_suffix(results)
+}
 
 if (opts$debug == TRUE) {
   write_tsv(results, "Debug_table.txt")

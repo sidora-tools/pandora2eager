@@ -28,12 +28,15 @@ provided below:
 Usage: pandora2eager.sh [OPTIONS] /path/to/input_seq_IDs_file.txt
 
 Options:
-	-r/--rename	Changes all dots (.) in the Library_ID field of the output to underscores (_).
-			Some tools used in nf-core/eager will strip everything after the first dot (.)
-			from the name of the input file, which can cause naming conflicts in rare cases.
-	-h/--help	Usage information.
-	-v/--version	Version information.
-
+	-f/--file_type		Specify the file type of the input files. Accepted values are: 'bam', 'fastq_pathogens'.
+				Note: if this flag is not provided, raw fastq will be used to generate the table
+	-r/--rename		Changes all dots (.) in the Library_ID field of the output to underscores (_).
+				Some tools used in nf-core/eager will strip everything after the first dot (.)
+				from the name of the input file, which can cause naming conflicts in rare cases.
+	-d/--debug		Activate debug mode, it produces a file called: 'Debug_table.txt'.
+	-s/--add_ss_suffix		Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.
+	-h/--help		Show usage information.
+	-v/--version		Show version information.
 
 ```
 
@@ -49,8 +52,7 @@ or Clemens Schmid to obtain them. You also have to be in the institute's subnet.
 You can get usage information and a descripition of optional arguments by running `pandora2eager.R`
 without specifying any arguments.
 ```
-
-Usage: pandora2eager.R [options] /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials
+Usage: ./exec/pandora2eager.R [options] /path/to/input_seq_IDs_file.txt /path/to/pandora/.credentials
 
 
 Options:
@@ -69,6 +71,9 @@ Options:
         -f FILE_TYPE, --file_type=FILE_TYPE
                 Specify the file type of the input files. Accepted values are: "bam", "fastq_pathogens". 
                         Note: if this flag is not provided, raw fastq will be used to generate the table
+
+        -s, --add_ss_suffix
+                Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.
 
 ```
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-VERSION="0.5.0"
-TEMP=`getopt -q -o hf:drv --long help,file_type:,rename,debug,version -n 'pandora2eager.sh' -- "$@"`
+VERSION="0.6.0"
+TEMP=`getopt -q -o hf:drvs --long help,file_type:,rename,debug,version,add_ss_suffix -n 'pandora2eager.sh' -- "$@"`
 eval set -- "$TEMP"
 
 image_path="/mnt/archgen/tools/pandora2eager/${VERSION}"
@@ -16,6 +16,7 @@ Options:
 			Some tools used in nf-core/eager will strip everything after the first dot (.)
 			from the name of the input file, which can cause naming conflicts in rare cases.
 	-d/--debug	Activate debug mode, it produces a file called: 'Debug_table.txt'.
+	-s/--add_ss_suffix	Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.
 	-h/--help	Show usage information.
 	-v/--version	Show version information.
 
@@ -26,6 +27,7 @@ Options:
 rename=''
 file_type=''
 debug=''
+suffix=''
 
 while true ; do
   case "$1" in
@@ -39,6 +41,7 @@ while true ; do
     -v|--version) echo "Version: ${VERSION}"; exit 0;;
     -f|--file_type) file_type="-f $2"; shift 2;;
     -d|--debug) debug="-d"; shift 1;;
+    -s|--add_ss_suffix) suffix="-s"; shift 1;;
     *) echo -e "No Input file given.\n"; Helptext; exit 1;;
   esac
 done
@@ -48,4 +51,4 @@ input_path=$(dirname $(readlink -f ${fn1}))
 input_fn=$(basename ${fn1})
 mount_arg="${input_path}:/data"
 
-singularity run --bind ${mount_arg} ${image_path}/pandora2eager.sif /data/${input_fn} ${rename} ${file_type} ${debug}
+singularity run --bind ${mount_arg} ${image_path}/pandora2eager.sif /data/${input_fn} ${rename} ${suffix} ${file_type} ${debug}
