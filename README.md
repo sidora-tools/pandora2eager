@@ -34,7 +34,7 @@ Options:
 				Some tools used in nf-core/eager will strip everything after the first dot (.)
 				from the name of the input file, which can cause naming conflicts in rare cases.
 	-d/--debug		Activate debug mode, it produces a file called: 'Debug_table.txt'.
-	-s/--add_ss_suffix		Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.
+	-s/--add_ss_suffix	Adds the suffix '_ss' to the Sample_ID and Library_ID field of the output for single-stranded libraries.
 	-h/--help		Show usage information.
 	-v/--version		Show version information.
 
