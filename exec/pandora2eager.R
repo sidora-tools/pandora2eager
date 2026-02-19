@@ -118,8 +118,8 @@ add_ss_suffix <- function(results, suffix="_ss") {
           TRUE ~ Sample_Name
         ),
         Library_ID=case_when(
-          ## Insert the suffix after the first six characters (since Pandora individual IDs are always 6 characters long)
-          Strandedness == "single" ~ sub('^(.{6})(.*$)', paste0('\\1',suffix,'\\2'), Library_ID),
+          ## Replace the first dot in the Library_ID with the suffix followed by a dot, to work with pandora Site IDs that are longer than 3 characters.
+          Strandedness == "single" ~ sub('\\.', paste0(suffix, '.'), Library_ID),
           TRUE ~ Library_ID
         )
       )
